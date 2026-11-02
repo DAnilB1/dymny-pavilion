@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ДЫМНЫЙ ПАВИЛЬОН</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101812;color:#f5f0e5;font-family:Arial,sans-serif}
+header{padding:25px 7%;background:#17251b;border-bottom:1px solid #8d7042}
+.logo{font-family:Georgia,serif;font-size:30px;letter-spacing:2px;color:#e7d2a5}
+header p{color:#bdb5a4;margin-bottom:0}
+.hero{padding:65px 7%;background:linear-gradient(90deg,#101812,#26392b);text-align:center}
+.hero h1{font: bold 42px Georgia,serif;margin:0 0 15px}
+.hero p{color:#d1c8b6;line-height:1.6}
+.section{padding:35px 7%}
+.section h2{font:30px Georgia,serif;color:#e4c993}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.product{background:#1b2920;border:1px solid #46533f;border-radius:12px;padding:20px}
+.photo{height:135px;border-radius:8px;background:linear-gradient(135deg,#50372b,#a36b42);display:flex;align-items:center;justify-content:center;font-size:65px}
+.product h3{font:22px Georgia,serif}
+.price{color:#e4c993;font-size:20px;font-weight:bold}
+button{cursor:pointer;border:0;border-radius:7px;padding:12px 17px;background:#b28a4e;color:#151710;font-weight:bold}
+button:hover{background:#d0ad70}
+button:disabled{opacity:.6}
+.cart{background:#1b2920;border:1px solid #46533f;border-radius:12px;padding:22px}
+.cart-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #46533f}
+.qty button{padding:6px 11px;margin:0 3px}
+input,textarea{width:100%;padding:13px;margin:7px 0 14px;background:#101812;border:1px solid #59634e;border-radius:7px;color:white;font-size:16px}
+label{color:#d8cfbd}
+.total{font-size:23px;color:#e4c993;font-weight:bold;margin:20px 0}
+.note{color:#bdb5a4;font-size:14px;line-height:1.5}
+footer{text-align:center;padding:30px;background:#17251b;color:#c7bda9}
+#message{margin-top:15px;color:#e4c993}
+max-width:600px{.hero h1{font-size:32px}.section{padding:28px 5%}header{padding:22px 5%}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ДЫМНЫЙ ПАВИЛЬОН</div>
+  <p>Вкус, созданный с душой</p>
+</header>
+
+<section class="hero">
+  <h1>Настоящий вкус копчения</h1>
+  <p>Колбасные изделия и мясные деликатесы.
+
+  Выбирайте любимые продукты и оформляйте заказ.</p>
+  <button onclick="document.getElementById('catalog').scrollIntoView({behavior:'smooth'})">Перейти к каталогу</button>
+</section>
+
+<section class="section" id="catalog">
+  <h2>Наш ассортимент</h2>
+  <div class="products" id="products"></div>
+</section>
+
+<section class="section">
+  <h2>Корзина</h2>
+  <div class="cart">
+    <div id="cartItems">Корзина пока пуста.</div>
+    <div class="total" id="total">Итого: 0 ₽</div>
+    <h3>Оформление заказа</h3>
+    <form id="orderForm">
+      <label>Имя и фамилия</label>
+      <input id="customerName" required maxlength="100" placeholder="Как к вам обращаться?">
+      <label>Номер телефона</label>
+      <input id="phone" type="tel" required maxlength="20" placeholder="+7 900 000-00-00">
+      <label>Комментарий к заказу (необязательно)</label>
+      <textarea id="comment" rows="3" maxlength="500" placeholder="Ваши пожелания"></textarea>
+      <p class="note">Получение заказа: самовывоз по адресу Таёжный, Лесовозная, 12 П. Доставки нет.</p>
+      <button type="submit" id="submitButton">Оформить заказ</button>
+      <div id="message"></div>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="logo">ДЫМНЫЙ ПАВИЛЬОН</div>
+  <p>Таёжный, Лесовозная, 12 П</p>
+  <p>Самовывоз</p>
+</footer>
+
+<script>
+const products=[
+ {id:1,name:'Колбаса «Домашняя»',price:690,emoji:'🌭'},
+ {id:2,name:'Колбаса сырокопчёная',price:1250,emoji:'🥩'},
+ {id:3,name:'Колбаски охотничьи',price:780,emoji:'🌭'},
+ {id:4,name:'Грудинка копчёная',price:890,emoji:'🥓'},
+ {id:5,name:'Сервелат',price:840,emoji:'🥩'},
+ {id:6,name:'Колбаса «Фирменная»',price:990,emoji:'🌭'}
+];
+
+let cart={};
+
+function money(value){
+ return value.toLocaleString('ru-RU')+' ₽';
+}
+
+function renderProducts(){
+ document
+  d('products').innerHTML=products.map(p=>`
+  <article class="product">
+   <div class="photo">${p.emoji}</div>
+   <h3>${p.name}</h3>
+   <div class="price">${money(p.price)} / кг</div>
+   <p class="note">Натуральный вкус и аромат копчения.</p>
+   <button type="button" onclick="addToCart(${p.id})">В корзину +</button>
+  </article>
+ `).join('');
+}
+
+function addToCart(id){
+ cart[id]=(cart[id]||0)+1;
+ renderCart();
+}
+
+function changeQty(id,change){
+ cart[id]=(cart[id]||0)+change;
+ if(cart[id]<=0) delete cart[id];
+ renderCart();
+}
+
+function renderCart(){
+ const entries=Object.entries(cart);
+ const container=document.getElementById('cartItems');
+
+ if(!entries.length){
+  container.textContent='Корзина пока пуста.';
+ }else{
+  container.innerHTML=entries.map(([id,qty])=>{
+   const p=products.find(item=>item.id===Number(id));
+   return `<div class="cart-row">
+    <div>${p.name}
+<s
+class="note">${money(p.price)} / кг</span></div>
+    <div class="qty">
+     <button type="button" onclick="changeQty(${id},-1)">−</button>
+     ${qty}
+     <button type="button" onclick="changeQty(${id},1)">+</button>
+    </div>
+    <strong>${money(p.price*qty)}</strong>
+   </div>`;
+  }).join('');
+ }
+
+ const sum=entries.reduce((total,[id,qty])=>{
+  const p=products.find(item=>item.id===Number(id));
+  return total+p.price*qty;
+ },0);
+
+ document.getElementById('total').textContent='Итого: '+money(sum);
+}
+
+document.getElementById('orderForm').addEventListener('submit',function(event){
+ event.preventDefault();
+
+ if(!Object.keys(cart).length){
+  document.getElementById('message').textContent='Сначала добавьте товары в корзину.';
+  return;
+ }
+
+ const name=document.getElementById('customerName').value.trim();
+ const phone=document.getElementById('phone').value.trim();
+
+ if(name.length<2||phone.replace(/\D/g,'').length<10){
+  document.getElementById('message').textContent='Проверьте имя и номер телефона.';
+  return;
+ }
+
+ document.getElementById('message').textContent=
+  'Демонстрация: форма заполнена. Сервер для отправки заказов ещё не подключён.';
+
+});
+
+renderProducts();
+renderCart();
+</script>
+</body>
+</html>.getElementByI
